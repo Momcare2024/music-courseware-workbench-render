@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>音乐课件画面工作台</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20260609-render" />
+  </head>
+  <body>
+    <div id="access-gate" class="access-gate hidden">
+      <form id="access-form" class="access-card">
+        <p class="eyebrow">Private Workbench</p>
+        <h2>输入访问码</h2>
+        <p id="access-message" class="muted">这个工作台会调用你的图片 API，请先输入访问码。</p>
+        <label>
+          访问码
+          <input id="access-code" name="access_code" type="password" autocomplete="off" placeholder="请输入访问码" />
+        </label>
+        <button type="submit">进入工作台</button>
+      </form>
+    </div>
+
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Jimeng Image PPT Workbench</p>
+        <h1>音乐课件画面工作台</h1>
+        <p class="subtitle">按你的页面设计稿调用即梦生成整页画面，再导出图片版 PPTX，或导出可上传 WPS AIPPT 的 PDF/图片包。</p>
+      </div>
+      <form id="config-form" class="config-card">
+        <strong>方舟即梦 API 设置</strong>
+        <p id="config-status">读取配置中...</p>
+        <label>
+          Ark API Key
+          <input id="ark-api-key" name="ark_api_key" type="password" autocomplete="off" placeholder="复制 API Key 列的 ark-...，不要复制资源 ID" />
+        </label>
+        <div class="grid-2">
+          <label>
+            Ark Base URL
+            <input id="ark-base-url" name="ark_base_url" value="https://ark.cn-beijing.volces.com/api/v3" />
+          </label>
+          <label>
+            图片模型
+            <input id="ark-image-model" name="ark_image_model" value="doubao-seedream-4-0-250828" />
+          </label>
+        </div>
+        <div class="button-row config-buttons">
+          <button type="submit">保存 API 设置</button>
+          <button type="button" id="test-jimeng">测试即梦连接</button>
+        </div>
+      </form>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <h2>1. 创建图片版 PPT 项目</h2>
+        <form id="create-form">
+          <label>
+            课题
+            <input name="title" required placeholder="例如：我的家在日喀则" />
+          </label>
+          <label>
+            整体风格补充
+            <textarea name="global_style" rows="4" placeholder="例如：儿童音乐课堂、温暖明亮、藏族纹样轻装饰、公开课质感、中文标题清晰。"></textarea>
+          </label>
+          <label>
+            教案（可选，用于归档）
+            <textarea name="lesson_text" rows="8" placeholder="把你已经写好的教案粘贴到这里，可不填。"></textarea>
+          </label>
+          <label>
+            PPT 页面设计稿（必填）
+            <textarea
+              name="design_text"
+              rows="18"
+              required
+              placeholder="第1页｜封面
+做一页温暖明亮的音乐课封面。标题是《我的家在日喀则》，副标题是“小学音乐课”。画面有雪山、日喀则城市轮廓、藏族纹样、音符装饰。整体高级、干净、适合公开课。
+
+第2页｜情境导入
+标题是“走进日喀则”。页面左侧是日喀则风景插画，右侧有两个问题：“你看到了什么？”“你听到了什么？”整体蓝橙配色，儿童友好，留白舒服。"
+            ></textarea>
+          </label>
+          <button type="submit">创建并拆分页</button>
+        </form>
+
+        <h2>历史任务</h2>
+        <div id="project-list" class="project-list"></div>
+      </section>
+
+      <section class="panel review-panel">
+        <div class="toolbar">
+          <div>
+            <h2>2. 逐页生成画面</h2>
+            <p id="current-project" class="muted">尚未选择任务</p>
+          </div>
+          <div class="button-row">
+            <button id="save-pages" disabled>保存页面设计</button>
+            <button id="reparse-pages" disabled>重新拆分页</button>
+            <button id="generate-all" disabled>一键生成剩余全部页面</button>
+            <button id="export-pptx" disabled>导出图片版 PPTX</button>
+            <button id="export-wps-upload" disabled>导出WPS上传PDF/图片包</button>
+          </div>
+        </div>
+
+        <div id="job-status" class="job-status hidden">
+          <strong id="job-status-title">处理中</strong>
+          <span id="job-status-detail">等待任务开始...</span>
+        </div>
+
+        <div class="downloads">
+          <a id="download-page-design" class="download disabled">下载页面设计稿</a>
+          <a id="download-pages-json" class="download disabled">下载分页 JSON</a>
+          <a id="download-pptx" class="download disabled">下载图片版 PPTX</a>
+          <a id="download-wps-pdf" class="download disabled">下载WPS上传PDF</a>
+          <a id="download-image-zip" class="download disabled">下载页面图片ZIP</a>
+          <a id="download-zip" class="download disabled">下载交付包 ZIP</a>
+        </div>
+
+        <div id="page-list" class="page-list empty-state">创建项目后，每页设计会显示在这里。</div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="/static/app.js?v=20260609-render"></script>
+  </body>
+</html>
