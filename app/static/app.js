@@ -39,7 +39,7 @@ async function api(path, options = {}) {
   if (timeoutMs) {
     const controller = new AbortController();
     options.signal = controller.signal;
-    timer = setTimeout(() => controller.abort(), timeoutMs);
+    timer = setTimeout(() => controller.abort(new Error(`请求等待超过 ${Math.round(timeoutMs / 1000)} 秒，请稍后重试。`)), timeoutMs);
   }
   try {
     const response = await fetch(path, options);
@@ -51,6 +51,14 @@ async function api(path, options = {}) {
       throw new Error(text || response.statusText);
     }
     return response.json();
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error(`请求等待超过 ${Math.round(timeoutMs / 1000)} 秒，请稍后重试。`);
+    }
+    if (String(error?.message || "").includes("signal is aborted")) {
+      throw new Error("请求被浏览器中断了，通常是网络波动或云端响应太慢，请刷新后重试。");
+    }
+    throw error;
   } finally {
     if (timer) clearTimeout(timer);
   }
@@ -242,7 +250,7 @@ async function createProject(event) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
-      timeoutMs: 30000,
+      timeoutMs: 120000,
     });
     renderProject(project);
     await loadProjects();
@@ -381,7 +389,7 @@ async function reparsePages() {
         design_text: currentProject.design_text || "",
         global_style: currentProject.global_style || "",
       }),
-      timeoutMs: 30000,
+      timeoutMs: 120000,
     });
     renderProject(project);
     await loadProjects();
