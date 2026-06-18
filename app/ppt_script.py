@@ -155,7 +155,8 @@ def _split_page_blocks(design_text: str) -> list[str]:
     text = design_text.strip()
     if not text:
         return []
-    marker = r"(?:#{1,4}\s*)?(?:P\s*\d+|第\s*\d+\s*页)[｜|:：\s]"
+    page_number = r"(?:\d+|[一二三四五六七八九十百零〇两]+)"
+    marker = rf"(?:#{{1,4}}\s*)?(?:\*\*)?\s*(?:P\s*\d+|第\s*{page_number}\s*[页頁])\s*(?=[《<（(:：｜|\s-])"
     pattern = re.compile(
         rf"(?=^\s*{marker})",
         re.MULTILINE | re.IGNORECASE,
@@ -182,8 +183,10 @@ def _trim_non_page_tail(block: str) -> str:
 def _page_title(block: str, index: int) -> str:
     first_line = next((line.strip() for line in block.splitlines() if line.strip()), "")
     first_line = re.sub(r"^\s*#{1,4}\s*", "", first_line)
-    first_line = re.sub(r"^\s*P\s*\d+\s*[｜|:：-]?\s*", "", first_line, flags=re.IGNORECASE)
-    first_line = re.sub(r"^\s*第\s*\d+\s*页\s*[｜|:：-]?\s*", "", first_line)
+    first_line = first_line.strip("* ")
+    first_line = re.sub(r"^\s*P\s*\d+\s*[《<（(:：｜|-]?\s*", "", first_line, flags=re.IGNORECASE)
+    first_line = re.sub(r"^\s*第\s*(?:\d+|[一二三四五六七八九十百零〇两]+)\s*[页頁]\s*[《<（(:：｜|-]?\s*", "", first_line)
+    first_line = first_line.strip("* 》>）)")
     return first_line[:30] or f"第{index}页"
 
 
